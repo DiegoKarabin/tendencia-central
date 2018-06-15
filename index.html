@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <title>Medidas de Tendencia Central</title>
+</head>
+<body>
+    <div id="app" class="container">
+    	<h1>Cálculo de Tendencias Centrales</h1>
+
+    	<form class="form-inline">
+    		<div class="form-group">
+    			<label for="valor" class="control-label">Valor</label>
+    			<input type="number" name="valor" v-model="valor" class="form-control">
+    		</div>
+    		<button class="btn btn-primary" @click.prevent="agregar(valor)" :disabled="valor == undefined">Agregar</button>
+    	</form>
+
+    	<label>Valor</label>
+    	<p>{{ valor }}</p>
+
+    	<label for="conjunto">Conjunto</label>
+    	<p id="conjunto" class="conjunto">
+    		[
+    		<span class="elemento"
+    			  v-for="(elemento, indice) of conjunto"
+    			  v-text="elemento + ' '"
+    			  @click="retirar(indice)"></span>
+    		]
+    	</p>
+
+        <footer class="footer">
+            <p>&copy; 2018 - Diego Karabin</p>
+        </footer>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/vue.js"></script>
+
+    <script>
+        let vm = new Vue({
+            el: '#app',
+            data: {
+            	valor: undefined,
+                conjunto: []
+            },
+            methods: {
+            	agregar(valor) {
+            		this.conjunto.push(Number(valor));
+            		this.valor = undefined;
+            	},
+            	
+            	retirar(indice) {
+            		this.conjunto.splice(indice, 1);
+            	}
+            }
+        })
+    </script>
+</body>
+</html>

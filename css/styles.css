@@ -1,0 +1,24 @@
+body {
+	font-size: 20px;
+}
+
+form .form-group input,
+form button {
+	font-size: 20px;
+}
+
+form {
+	margin: 40px 0;
+	text-align: center;
+}
+
+.conjunto {
+	font-size: 20px;
+}
+
+footer.footer {
+	padding: 15px;
+	color: #999;
+	font-size: 20px;
+	border-top: 1px solid #ccc;
+}
