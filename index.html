@@ -17,21 +17,42 @@
     			<label for="valor" class="control-label">Valor</label>
     			<input type="number" name="valor" v-model="valor" class="form-control">
     		</div>
-    		<button class="btn btn-primary" @click.prevent="agregar(valor)" :disabled="valor == undefined">Agregar</button>
+    		<button class="btn btn-primary"
+    				@click.prevent="agregar(valor)"
+    				:disabled="valor == undefined">
+    			Agregar
+    		</button>
     	</form>
 
-    	<label>Valor</label>
-    	<p>{{ valor }}</p>
+    	<template v-if="conjunto.length">
+	    	<label for="conjunto">Conjunto</label>
+	    	<p id="conjunto" class="conjunto">
+	    		[
+	    		<span class="elemento"
+	    			  v-for="(elemento, indice) of conjunto"
+	    			  v-text="elemento + ' '"
+	    			  @click="retirar(indice)"
+	    			  :title="`Eliminar ${elemento}`"></span>
+	    		]
+	    	</p>
+	    </template>
 
-    	<label for="conjunto">Conjunto</label>
-    	<p id="conjunto" class="conjunto">
-    		[
-    		<span class="elemento"
-    			  v-for="(elemento, indice) of conjunto"
-    			  v-text="elemento + ' '"
-    			  @click="retirar(indice)"></span>
-    		]
-    	</p>
+    	<template v-if="conjunto.length">
+    		<button class="btn btn-info"
+	    			@click="limpiar">
+	    		Limpiar conjunto
+	    	</button>
+	    	<button class="btn btn-default"
+	    			@click="calcular">
+    			Calcular MTC
+    		</button>
+	    </template>
+
+    	<template v-if="mostrar">
+    		<hr>
+    		<label for="media">Media</label>
+	    	<p id="media" v-text="media"></p>
+    	</template>
 
         <footer class="footer">
             <p>&copy; 2018 - Diego Karabin</p>
@@ -47,16 +68,37 @@
             el: '#app',
             data: {
             	valor: undefined,
-                conjunto: []
+                conjunto: [],
+                mostrar: false,
+            },
+            computed: {
+            	media() {
+            		if (this.conjunto.length)
+	            		return this.conjunto.reduce(
+	            			(xi, acum) => acum + xi
+	        			) / this.conjunto.length;
+            	}
             },
             methods: {
             	agregar(valor) {
-            		this.conjunto.push(Number(valor));
-            		this.valor = undefined;
+            		if (this.conjunto.length < 30) {
+	            		this.conjunto.push(Number(valor));
+	            		this.valor = undefined;
+	            	}
             	},
-            	
+
             	retirar(indice) {
             		this.conjunto.splice(indice, 1);
+            	},
+
+            	limpiar() {
+            		this.conjunto = [];
+            		this.mostrar = false;
+            	},
+
+            	calcular() {
+            		this.conjunto.sort().reverse();
+            		this.mostrar = true;
             	}
             }
         })

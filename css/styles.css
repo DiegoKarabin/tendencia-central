@@ -16,7 +16,16 @@ form {
 	font-size: 20px;
 }
 
+.elemento {
+	cursor: pointer;
+}
+
+.elemento:hover {
+	color: #bbb;
+}
+
 footer.footer {
+	margin: 20px 0;
 	padding: 15px;
 	color: #999;
 	font-size: 20px;
