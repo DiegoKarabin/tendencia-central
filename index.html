@@ -12,17 +12,7 @@
     <div id="app" class="container">
     	<h1>Cálculo de Tendencias Centrales</h1>
 
-    	<form class="form-inline">
-    		<div class="form-group">
-    			<label for="valor" class="control-label">Valor</label>
-    			<input type="number" name="valor" v-model="valor" class="form-control">
-    		</div>
-    		<button class="btn btn-primary"
-    				@click.prevent="agregar(valor)"
-    				:disabled="valor == undefined">
-    			Agregar
-    		</button>
-    	</form>
+    	<app-single-value-form @enviar="agregar"></app-single-value-form>
 
     	<template v-if="conjunto.length">
 	    	<label for="conjunto">Conjunto</label>
@@ -50,7 +40,7 @@
 
     	<template v-if="mostrar">
     		<hr>
-    		<label for="media">Media</label>
+    		<label for="media">Media Aritmética</label>
 	    	<p id="media" v-text="media"></p>
     	</template>
 
@@ -62,46 +52,19 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/vue.js"></script>
-
-    <script>
-        let vm = new Vue({
-            el: '#app',
-            data: {
-            	valor: undefined,
-                conjunto: [],
-                mostrar: false,
-            },
-            computed: {
-            	media() {
-            		if (this.conjunto.length)
-	            		return this.conjunto.reduce(
-	            			(xi, acum) => acum + xi
-	        			) / this.conjunto.length;
-            	}
-            },
-            methods: {
-            	agregar(valor) {
-            		if (this.conjunto.length < 30) {
-	            		this.conjunto.push(Number(valor));
-	            		this.valor = undefined;
-	            	}
-            	},
-
-            	retirar(indice) {
-            		this.conjunto.splice(indice, 1);
-            	},
-
-            	limpiar() {
-            		this.conjunto = [];
-            		this.mostrar = false;
-            	},
-
-            	calcular() {
-            		this.conjunto.sort().reverse();
-            		this.mostrar = true;
-            	}
-            }
-        })
+    <script type="text/x-template" id="single-value-form">
+        <form class="form-inline" @submit.prevent="enviar">
+            <div class="form-group">
+                <label for="valor" class="control-label">Valor</label>
+                <input type="number" name="valor" v-model="valor" class="form-control">
+            </div>
+            <button class="btn btn-primary"
+                    :disabled="valor == undefined">
+                Agregar
+            </button>
+        </form>
     </script>
+    <script src="js/app.js"></script>
+
 </body>
 </html>
