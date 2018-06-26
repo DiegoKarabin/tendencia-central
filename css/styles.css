@@ -2,6 +2,11 @@ body {
 	font-size: 20px;
 }
 
+.opciones {
+	display: flex;
+	justify-content: space-between;
+}
+
 form .form-group input,
 form button {
 	font-size: 20px;

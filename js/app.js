@@ -1,3 +1,15 @@
+function buscar(arreglo, caso) {
+    for (let i = 0; i < arreglo.length; i++)
+        if (caso(arreglo[i]))
+            return i;
+
+    return -1;
+}
+
+Vue.component('app-footer', {
+    template: '<footer class="footer"><p>&copy; 2018 - Diego Karabin</p></footer>'
+})
+
 Vue.component('app-single-value-form', {
     template: '#single-value-form',
     data() {
@@ -14,6 +26,33 @@ Vue.component('app-single-value-form', {
         enviar() {
             this.$emit('enviar', Number(this.valor));
             this.valor = undefined;
+        }
+    }
+});
+
+Vue.component('app-double-value-form', {
+    template: '#double-value-form',
+    data() {
+        return {
+            valor: undefined,
+            frecuencia: undefined
+        }
+    },
+    computed: {
+        habilitar() {
+            return this.numero_valido(this.valor) &&
+                   this.numero_valido(this.frecuencia);
+        }
+    },
+    methods: {
+        numero_valido(numero) {
+            return numero && !isNaN(Number(numero));
+        },
+
+        enviar() {
+            this.$emit('enviar', Number(this.valor), Number(this.frecuencia));
+            this.valor = undefined;
+            this.frecuencia = undefined;
         }
     }
 });
@@ -36,21 +75,23 @@ Vue.component('app-dataset', {
             this.$emit('remove', indice);
         }
     }
-})
+});
 
-let vm = new Vue({
-    el: '#app',
-    data: {
-        conjunto: [],
-        mostrar: false,
-        media_aritmetica: undefined,
-        media_geometrica: undefined,
-        media_armonica: undefined,
-        media_cuadratica: undefined,
-        mediana: undefined,
-        moda: undefined,
-        varianza: undefined,
-        desviacion: undefined
+Vue.component('app-few-values', {
+    template: '#few-values',
+    data() {
+        return {
+            conjunto: [],
+            mostrar: false,
+            media_aritmetica: undefined,
+            media_geometrica: undefined,
+            media_armonica: undefined,
+            media_cuadratica: undefined,
+            mediana: undefined,
+            moda: undefined,
+            varianza: undefined,
+            desviacion: undefined
+        }
     },
     methods: {
         agregar(valor) {
@@ -127,16 +168,8 @@ let vm = new Vue({
         calcular_moda() {
             let numbers = [];
 
-            function look(number) {
-                for (let i = 0; i < numbers.length; i++)
-                    if (numbers[i].number == number)
-                        return i;
-
-                return -1;
-            }
-
             this.conjunto.forEach((element) => {
-                let index = look(element);
+                let index = buscar(numbers, item => item.number == element);
                 if (index == -1)
                     numbers.push({
                         number: element,
@@ -169,4 +202,108 @@ let vm = new Vue({
                 ), 0) / this.conjunto.length;
         }
     }
-})
+});
+
+Vue.component('app-many-values', {
+    template: '#many-values',
+    data() {
+        return {
+            conjunto: [],
+            mostrar: false,
+            media_aritmetica: undefined,
+            mediana: undefined,
+            moda: undefined,
+            varianza: undefined,
+            desviacion: undefined
+        }
+    },
+    methods: {
+        agregar(valor, frecuencia) {
+            let indice = buscar(this.conjunto, item => item.numero == valor);
+
+            if (indice == -1)
+                this.conjunto.push({
+                    numero: valor,
+                    frecuencia: frecuencia
+                });
+            else
+                this.conjunto[indice].frecuencia += frecuencia;
+        },
+
+        retirar(indice) {
+            this.conjunto.splice(indice, 1);
+        },
+
+        limpiar() {
+            this.conjunto = [];
+            this.mostrar = false;
+        },
+
+        calcular() {
+            this.conjunto.sort((a, b) => a.numero - b.numero);
+            this.mostrar = true;
+            this.media_aritmetica = this.calcular_media_aritmetica();
+            this.mediana = this.calcular_mediana();
+            this.moda = this.calcular_moda();
+            this.varianza = this.calcular_varianza();
+            this.desviacion = Math.sqrt(this.varianza);
+        },
+
+        calcular_media_aritmetica() {
+            return this.conjunto.reduce(
+                (acum, xi) => acum + xi.frecuencia * xi.numero, 0
+            ) / this.conjunto.reduce(
+                (acum, xi) => acum + xi.frecuencia, 0
+            );
+        },
+
+        calcular_mediana() {
+            let len = this.conjunto.length;
+            if (len % 2 == 0) {
+                let mitad = len / 2;
+                return (this.conjunto[mitad].numero +
+                        this.conjunto[mitad - 1].numero) / 2;
+            }
+
+            return this.conjunto[(len - 1) / 2].numero;
+        },
+
+        calcular_moda() {
+            if (this.conjunto.every(elemento => elemento.frequencia == 1))
+                return 'No hay moda';
+            
+            let mayor_frecuencia = this.conjunto.reduce(
+                (mayor, xi) => {
+                    if (xi.frecuencia > mayor)
+                        return xi.frecuencia;
+                    return mayor;
+                }, 0),
+                mod = '';
+            this.conjunto.forEach((elemento) => {
+                if (elemento.frecuencia == mayor_frecuencia)
+                    mod += elemento.numero + ', ';
+            });
+            let s = mod.split(',');
+            s.pop();
+            mod = s.join(',');
+
+            return mod;
+        },
+
+        calcular_varianza() {
+            return (this.conjunto.reduce(
+                (acum, xi) => acum + (
+                    Math.pow(xi.numero, 2) * xi.frecuencia)
+                , 0) / this.conjunto.reduce(
+                    (acum, xi) => acum + xi.frecuencia, 0
+                )) - Math.pow(this.media_aritmetica, 2);
+        }
+    }
+});
+
+let vm = new Vue({
+    el: '#app',
+    data: {
+        opcion: undefined
+    }
+});

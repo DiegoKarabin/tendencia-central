@@ -11,65 +11,26 @@
 <body>
     <div id="app" class="container">
     	<h1>Cálculo de Tendencias Centrales</h1>
+        <br>
+        <div class="row text-center opciones">
+            <div>
+                <label for="pocos">Pocos Valores</label>
+                <input type="radio" name="opciones" id="pocos" :value="0" v-model="opcion">
+            </div>
+            <div>
+                <label for="muchos">Muchos Valores</label>
+                <input type="radio" name="opciones" id="muchos" :value="1" v-model="opcion">
+            </div>
+            <div>
+                <label for="intervalos">Intervalos de Clase</label>
+                <input type="radio" name="opciones" id="intervalos" :value="2" v-model="opcion">
+            </div>
+        </div>
 
-    	<app-single-value-form @enviar="agregar"></app-single-value-form>
+    	<app-few-values v-if="opcion == 0"></app-few-values>
+        <app-many-values v-else-if="opcion == 1"></app-many-values>
 
-    	<template v-if="conjunto.length">
-	    	<label for="conjunto">Conjunto</label>
-	    	<app-dataset :conjunto="conjunto" @remove="retirar"></app-dataset>
-	    </template>
-
-    	<template v-if="conjunto.length">
-            <app-btn type="info" :action="limpiar" text="Limpiar conjunto"></app-btn>
-            <app-btn type="default" :action="calcular" text="Calcular MTC"></app-btn>
-	    </template>
-
-    	<template v-if="mostrar">
-            <hr>
-    		<table class="table">
-                <thead>
-                    <tr>
-                        <th>Media</th>
-                    </tr>
-                    <tr>
-                        <th>Aritmética</th>
-                        <th>Geométrica</th>
-                        <th>Armónica</th>
-                        <th>Cuadrática</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td v-text="media_aritmetica"></td>
-                        <td v-text="media_geometrica"></td>
-                        <td v-text="media_armonica"></td>
-                        <td v-text="media_cuadratica"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Mediana</th>
-                        <th>Moda</th>
-                        <th>Varianza</th>
-                        <th>Desviación Típica</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td v-text="mediana"></td>
-                        <td v-text="moda"></td>
-                        <td v-text="varianza"></td>
-                        <td v-text="desviacion"></td>
-                    </tr>
-                </tbody>
-            </table>
-    	</template>
-
-        <footer class="footer">
-            <p>&copy; 2018 - Diego Karabin</p>
-        </footer>
+        <app-footer></app-footer>
     </div>
 
     <script src="js/jquery.min.js"></script>
@@ -87,6 +48,22 @@
             </button>
         </form>
     </script>
+    <script type="text/x-template" id="double-value-form">
+        <form class="form-inline" @submit.prevent="enviar">
+            <div class="form-group">
+                <label for="valor" class="control-label">Valor</label>
+                <input type="text" name="valor" v-model="valor" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="valor" class="control-label">Frecuencia</label>
+                <input type="text" name="frecuencia" v-model="frecuencia" class="form-control">
+            </div>
+            <button class="btn btn-primary"
+                    :disabled="!habilitar">
+                Agregar
+            </button>
+        </form>
+    </script>
     <script type="text/x-template" id="dataset">
         <p class="conjunto">
             [
@@ -97,6 +74,119 @@
                   :title="`Eliminar ${elemento}`"></span>
             ]
         </p>
+    </script>
+    <script type="text/x-template" id="few-values">
+        <div>
+            <app-single-value-form @enviar="agregar"></app-single-value-form>
+
+            <template v-if="conjunto.length">
+                <label for="conjunto">Conjunto</label>
+                <app-dataset :conjunto="conjunto" @remove="retirar"></app-dataset>
+                <app-btn type="info" :action="limpiar" text="Limpiar conjunto" v-show="conjunto.length > 1"></app-btn>
+                <app-btn type="default" :action="calcular" text="Calcular MTC"></app-btn>
+            </template>
+
+            <template v-if="mostrar && conjunto.length">
+                <hr>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Media</th>
+                        </tr>
+                        <tr>
+                            <th>Aritmética</th>
+                            <th>Geométrica</th>
+                            <th>Armónica</th>
+                            <th>Cuadrática</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td v-text="media_aritmetica.toFixed(2)"></td>
+                            <td v-text="media_geometrica.toFixed(2)"></td>
+                            <td v-text="media_armonica.toFixed(2)"></td>
+                            <td v-text="media_cuadratica.toFixed(2)"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Mediana</th>
+                            <th>Moda</th>
+                            <th>Varianza</th>
+                            <th>Desviación Típica</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td v-text="mediana.toFixed(2)"></td>
+                            <td v-text="moda"></td>
+                            <td v-text="varianza.toFixed(2)"></td>
+                            <td v-text="desviacion.toFixed(2)"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
+        </div>
+    </script>
+    <script type="text/x-template" id="many-values">
+        <div>
+            <app-double-value-form @enviar="agregar"></app-double-value-form>
+            <template v-if="conjunto.length">
+                <h3>Conjunto</h3>
+                <div class="text-right">
+                    <app-btn type="info" :action="limpiar" text="Limpiar conjunto" v-show="conjunto.length > 1"></app-btn>
+                    <app-btn type="default" :action="calcular" text="Calcular MTC"></app-btn>
+                </div>
+                <table class="table bordered-table">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Frecuencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, indice) of conjunto">
+                            <td v-text="item.numero"></td>
+                            <td v-text="item.frecuencia"></td>
+                            <span class="glyphicon glyphicon-remove" @click="retirar(indice)"></span>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
+            <template v-if="mostrar && conjunto.length">
+                <hr>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Media Aritmética</th>
+                            <th>Mediana</th>
+                            <th>Moda</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td v-text="media_aritmetica.toFixed(2)"></td>
+                            <td v-text="mediana.toFixed(2)"></td>
+                            <td v-text="moda"></td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th>Varianza</th>
+                            <th>Desviación Típica</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td v-text="varianza.toFixed(2)"></td>
+                            <td v-text="desviacion.toFixed(2)"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
+        </div>
     </script>
     <script src="js/app.js"></script>
 
