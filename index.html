@@ -25,9 +25,46 @@
 	    </template>
 
     	<template v-if="mostrar">
-    		<hr>
-    		<label for="media">Media Aritmética</label>
-	    	<p id="media" v-text="media_aritmetica"></p>
+            <hr>
+    		<table class="table">
+                <thead>
+                    <tr>
+                        <th>Media</th>
+                    </tr>
+                    <tr>
+                        <th>Aritmética</th>
+                        <th>Geométrica</th>
+                        <th>Armónica</th>
+                        <th>Cuadrática</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td v-text="media_aritmetica"></td>
+                        <td v-text="media_geometrica"></td>
+                        <td v-text="media_armonica"></td>
+                        <td v-text="media_cuadratica"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Mediana</th>
+                        <th>Moda</th>
+                        <th>Varianza</th>
+                        <th>Desviación Típica</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td v-text="mediana"></td>
+                        <td v-text="moda"></td>
+                        <td v-text="varianza"></td>
+                        <td v-text="desviacion"></td>
+                    </tr>
+                </tbody>
+            </table>
     	</template>
 
         <footer class="footer">
