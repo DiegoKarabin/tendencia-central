@@ -57,6 +57,43 @@ Vue.component('app-double-value-form', {
     }
 });
 
+Vue.component('app-intervals-form', {
+    template: '#intervals-form',
+    data() {
+        return {
+            inferior: undefined,
+            superior: undefined,
+            frecuencia: undefined
+        }
+    },
+    computed: {
+        habilitar() {
+            return this.numero_valido(this.inferior) &&
+                   this.numero_valido(this.superior) &&
+                   this.numero_valido(this.frecuencia) &&
+                   Number(this.inferior) < Number(this.superior);
+        }
+    },
+    methods: {
+        numero_valido(numero) {
+            return numero && !isNaN(Number(numero));
+        },
+
+        enviar() {
+            this.$emit(
+                'enviar',
+                Number(this.inferior),
+                Number(this.superior),
+                Number(this.frecuencia)
+            );
+
+            this.inferior = undefined;
+            this.superior = undefined;
+            this.frecuencia = undefined;
+        }
+    }
+});
+
 Vue.component('app-btn', {
     template: '<button :class="css_classes" @click="action">{{ text }}</button>',
     props: ['type', 'action', 'text'],
@@ -300,6 +337,132 @@ Vue.component('app-many-values', {
         }
     }
 });
+
+Vue.component('app-class-intervals', {
+    template: '#class-intervals',
+    data() {
+        return {
+            conjunto: [],
+            mostrar: false,
+            media_aritmetica: undefined,
+            mediana: undefined,
+            moda: undefined,
+            varianza: undefined,
+            desviacion: undefined,
+            indice_mayor: undefined
+        }
+    },
+    methods: {
+        agregar(inferior, superior, frecuencia) {
+            let elemento = {inferior, superior, frecuencia};
+            elemento.marca = ((superior - inferior) / 2) + inferior;
+            this.conjunto.push(elemento);
+
+            this.conjunto.sort((a, b) => a.marca - b.marca);
+            this.calcular_ui();
+        },
+
+        calcular_ui() {
+            let mayor_frecuencia = this.conjunto.reduce((mayor, actual) => {
+                if (actual.frecuencia > mayor.frecuencia)
+                    return actual;
+
+                return mayor;
+            });
+            let indice = this.conjunto.indexOf(mayor_frecuencia);
+            this.indice_mayor = indice;
+
+            for (let i = indice, j = 0; i >= 0; i--, j--)
+                this.conjunto[i].ui = j;
+
+            for (let i = indice + 1, j = 1; i < this.conjunto.length; i++, j++)
+                this.conjunto[i].ui = j;
+        },
+
+        limpiar() {
+            this.conjunto = []
+            this.mostrar = false;
+        },
+
+        calcular() {
+            this.mostrar = true;
+            this.media_aritmetica = this.calcular_media_aritmetica();
+            this.mediana = this.calcular_mediana();
+            this.moda = this.calcular_moda();
+            this.varianza = this.calcular_varianza();
+            this.desviacion = Math.sqrt(this.varianza);
+        },
+
+        calcular_media_aritmetica() {
+            let en_el_centro = false,
+                len = this.conjunto.length,
+                mayor = this.conjunto[this.indice_mayor];
+
+            if (len % 2 == 0) {
+                let mitad = len / 2;
+                en_el_centro = this.indice_mayor == mitad ||
+                    this.indice_mayor == (mitad - 1);
+            } else
+                en_el_centro = this.indice_mayor == (len - 1) / 2;
+
+            if (en_el_centro) {
+                return mayor.marca + (this.conjunto.reduce(
+                    (acum, xi) => acum + xi.frecuencia * xi.ui, 0
+                ) / this.conjunto.reduce(
+                    (acum, xi) => acum + xi.frecuencia, 0
+                ) * (mayor.superior - mayor.inferior));
+            }
+
+            return this.conjunto.reduce(
+                (acum, xi) => acum + xi.frecuencia * xi.marca, 0
+            ) / this.conjunto.reduce(
+                (acum, xi) => acum + xi.frecuencia, 0
+            );
+        },
+
+        calcular_mediana() {
+            let len = this.conjunto.length;
+            if (len % 2 == 0) {
+                let mitad = len / 2;
+                return (this.conjunto[mitad].marca +
+                        this.conjunto[mitad - 1].marca) / 2;
+            }
+
+            return this.conjunto[(len - 1) / 2].marca;
+        },
+
+        calcular_moda() {
+            let mayor = this.conjunto[this.indice_mayor],
+                delta1 = mayor.frecuencia -
+                    this.conjunto[this.indice_mayor - 1].frecuencia;
+                delta2 = mayor.frecuencia -
+                    this.conjunto[this.indice_mayor + 1].frecuencia;
+
+
+            return mayor.inferior + (delta1 / (delta1 + delta2)) *
+                   (mayor.superior - mayor.inferior);
+        },
+
+        calcular_varianza() {
+            let intervalo = this.conjunto.reduce(
+                (acum, xi) => acum + (xi.superior - xi.inferior), 0
+            ) / this.conjunto.length;
+
+            let n = this.conjunto.reduce(
+                (acum, xi) => acum + xi.frecuencia, 0
+            );
+
+            return intervalo * Math.sqrt(
+                this.conjunto.reduce(
+                    (acum, xi) => {
+                        let fiui = xi.frecuencia * xi.ui;
+                        return (Math.pow(fiui, 2) / n) -
+                                Math.pow((fiui / n), 2);
+                    }, 0)
+            );
+        }
+    }
+})
 
 let vm = new Vue({
     el: '#app',

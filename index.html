@@ -29,6 +29,7 @@
 
     	<app-few-values v-if="opcion == 0"></app-few-values>
         <app-many-values v-else-if="opcion == 1"></app-many-values>
+        <app-class-intervals v-else-if="opcion == 2"></app-class-intervals>
 
         <app-footer></app-footer>
     </div>
@@ -55,7 +56,27 @@
                 <input type="text" name="valor" v-model="valor" class="form-control">
             </div>
             <div class="form-group">
-                <label for="valor" class="control-label">Frecuencia</label>
+                <label for="frecuencia" class="control-label">Frecuencia</label>
+                <input type="text" name="frecuencia" v-model="frecuencia" class="form-control">
+            </div>
+            <button class="btn btn-primary"
+                    :disabled="!habilitar">
+                Agregar
+            </button>
+        </form>
+    </script>
+    <script type="text/x-template" id="intervals-form">
+        <form class="form-inline" @submit.prevent="enviar">
+            <div class="form-group">
+                <label for="inferior" class="control-label">Inferior</label>
+                <input type="text" name="inferior" v-model="inferior" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="superior" class="control-label">Superior</label>
+                <input type="text" name="superior" v-model="superior" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="frecuencia">Frecuencia</label>
                 <input type="text" name="frecuencia" v-model="frecuencia" class="form-control">
             </div>
             <button class="btn btn-primary"
@@ -134,9 +155,9 @@
         <div>
             <app-double-value-form @enviar="agregar"></app-double-value-form>
             <template v-if="conjunto.length">
-                <h3>Conjunto</h3>
+                <h3>Tabla</h3>
                 <div class="text-right">
-                    <app-btn type="info" :action="limpiar" text="Limpiar conjunto" v-show="conjunto.length > 1"></app-btn>
+                    <app-btn type="info" :action="limpiar" text="Limpiar tabla" v-show="conjunto.length > 1"></app-btn>
                     <app-btn type="default" :action="calcular" text="Calcular MTC"></app-btn>
                 </div>
                 <table class="table bordered-table">
@@ -170,6 +191,70 @@
                             <td v-text="media_aritmetica.toFixed(2)"></td>
                             <td v-text="mediana.toFixed(2)"></td>
                             <td v-text="moda"></td>
+                        </tr>
+                    </tbody>
+                    <thead>
+                        <tr>
+                            <th>Varianza</th>
+                            <th>Desviación Típica</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td v-text="varianza.toFixed(2)"></td>
+                            <td v-text="desviacion.toFixed(2)"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
+        </div>
+    </script>
+    <script type="text/x-template" id="class-intervals">
+        <div>
+            <app-intervals-form @enviar="agregar"></app-intervals-form>
+            <template v-if="conjunto.length">
+                <h3>Tabla</h3>
+                <div class="text-right">
+                    <app-btn type="info" :action="limpiar" text="Limpiar tabla" v-show="conjunto.length > 1"></app-btn>
+                    <app-btn type="default" :action="calcular" text="Calcular MTC"></app-btn>
+                </div>
+                <table class="table bordered-table">
+                    <thead>
+                        <tr>
+                            <th>Inferior</th>
+                            <th>Superior</th>
+                            <th>Marca de Clase</th>
+                            <th>Ui</th>
+                            <th>Frecuencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, indice) of conjunto">
+                            <td v-text="item.inferior"></td>
+                            <td v-text="item.superior"></td>
+                            <td v-text="item.marca"></td>
+                            <td v-text="item.ui"></td>
+                            <td v-text="item.frecuencia"></td>
+                            <span class="glyphicon glyphicon-remove" @click="retirar(indice)"></span>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
+            <template v-if="mostrar && conjunto.length">
+                <hr>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Media Aritmética</th>
+                            <th>Mediana</th>
+                            <th>Moda</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td v-text="media_aritmetica.toFixed(2)"></td>
+                            <td v-text="mediana.toFixed(2)"></td>
+                            <td v-text="moda.toFixed(2)"></td>
                         </tr>
                     </tbody>
                     <thead>
