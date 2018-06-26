@@ -433,10 +433,12 @@ Vue.component('app-class-intervals', {
 
         calcular_moda() {
             let mayor = this.conjunto[this.indice_mayor],
+                anterior = this.conjunto[this.indice_mayor - 1],
+                siguiente = this.conjunto[this.indice_mayor + 1],
                 delta1 = mayor.frecuencia -
-                    this.conjunto[this.indice_mayor - 1].frecuencia;
+                    ((anterior) ? anterior.frecuencia : 0);
                 delta2 = mayor.frecuencia -
-                    this.conjunto[this.indice_mayor + 1].frecuencia;
+                    ((siguiente) ? siguiente.frecuencia : 0);
 
 
             return mayor.inferior + (delta1 / (delta1 + delta2)) *
